@@ -34,4 +34,6 @@
             <keyboard-shortcut keymap="$default" first-keystroke="alt G"/>
         </action>
     </actions>
+    <extensions defaultExtensionNs="com.intellij"/>
+    <depends>com.intellij.modules.java</depends>
 </idea-plugin>
