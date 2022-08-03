@@ -5,7 +5,7 @@ import com.intellij.psi.PsiElementFactory;
 import plugin.elliot.greendaocodegenerator.entity.ClassEntity;
 
 /**
- * Created by dim on 16/11/7.
+ * Created by Elliot on 16/11/7.
  */
 public class OtherProcessor extends Processor {
     @Override

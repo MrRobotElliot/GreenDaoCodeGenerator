@@ -11,7 +11,7 @@ import com.intellij.ui.awt.RelativePoint;
 import javax.swing.*;
 
 /**
- * Created by dim on 15/8/24.
+ * Created by Elliot on 15/8/24.
  */
 public class Toast {
 

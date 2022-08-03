@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by dim on 2015/7/15.
+ * Created by Elliot on 2015/7/15.
  */
 public class ClassEntity implements Selector, CellProvider {
 

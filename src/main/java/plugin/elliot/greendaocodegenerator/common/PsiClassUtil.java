@@ -1,18 +1,23 @@
 package plugin.elliot.greendaocodegenerator.common;
 
 import com.intellij.ide.util.DirectoryUtil;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.LangDataKeys;
+import com.intellij.openapi.actionSystem.PlatformDataKeys;
+import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.*;
 import com.intellij.psi.impl.source.PsiJavaFileImpl;
 import com.intellij.psi.search.EverythingGlobalScope;
 import com.intellij.psi.search.GlobalSearchScope;
+import com.intellij.psi.util.PsiTreeUtil;
 import org.apache.http.util.TextUtils;
 
 import java.io.File;
 
 /**
- * Created by dim on 15/8/22.
+ * Created by Elliot on 15/8/22.
  */
 public class PsiClassUtil {
 
@@ -23,8 +28,7 @@ public class PsiClassUtil {
             return null;
         }
 
-        File file = new File(psiDirectory.getVirtualFile().getCanonicalPath().concat("/")
-                .concat(generateClass.trim().replace(".", "/")).concat(".java"));
+        File file = new File(psiDirectory.getVirtualFile().getCanonicalPath().concat("/").concat(generateClass.trim().replace(".", "/")).concat(".java"));
 
         String[] strArray = generateClass.replace(" ", "").split("\\.");
         if (TextUtils.isEmpty(generateClass)) {
@@ -73,8 +77,7 @@ public class PsiClassUtil {
         if (packageName == null) {
             return new File(psiDirectory.getVirtualFile().getCanonicalPath());
         }
-        File file = new File(psiDirectory.getVirtualFile().getCanonicalPath().concat("/")
-                .concat(packageName.trim().replace(".", "/")));
+        File file = new File(psiDirectory.getVirtualFile().getCanonicalPath().concat("/").concat(packageName.trim().replace(".", "/")));
         if (file.exists()) {
             return file;
         }
@@ -91,8 +94,7 @@ public class PsiClassUtil {
             return null;
         }
 
-        File file = new File(psiDirectory.getVirtualFile().getCanonicalPath().concat("/")
-                .concat(generateClass.trim().replace(".", "/")).concat(".java"));
+        File file = new File(psiDirectory.getVirtualFile().getCanonicalPath().concat("/").concat(generateClass.trim().replace(".", "/")).concat(".java"));
 
         String[] strArray = generateClass.replace(" ", "").split("\\.");
         if (TextUtils.isEmpty(generateClass)) {
@@ -161,8 +163,7 @@ public class PsiClassUtil {
     }
 
     public static boolean isClassAvailableForProject(Project project, String className) {
-        PsiClass classInModule = JavaPsiFacade.getInstance(project).findClass(className,
-                new EverythingGlobalScope(project));
+        PsiClass classInModule = JavaPsiFacade.getInstance(project).findClass(className, new EverythingGlobalScope(project));
         return classInModule != null;
     }
 
@@ -175,5 +176,30 @@ public class PsiClassUtil {
 ////                                    charTableByTree, PsiManager.getInstance(cls.getProject()));
 ////                    cls.addAfter(psiWhiteSpace, psiElement);
 //    }
+
+    /**
+     * 获得当前文件的PisClass
+     * @param e
+     * @return
+     */
+    public static PsiClass getCurrentPsiClass(AnActionEvent e) {
+        PsiFile psiFile = e.getData(LangDataKeys.PSI_FILE); // 获取当前操作的文件，是一个PsiFile类型
+        Editor editor = e.getData(PlatformDataKeys.EDITOR);
+        PsiElement element = psiFile.findElementAt(editor.getCaretModel().getOffset());
+        PsiClass psiClass = PsiTreeUtil.getParentOfType(element, PsiClass.class);
+        return psiClass;
+    }
+
+    /**
+     * 获得当前文件的PisClass
+     * @param psiFile
+     * @param editor
+     * @return
+     */
+    public static PsiClass getCurrentPsiClass(PsiFile psiFile,  Editor editor) {
+        PsiElement element = psiFile.findElementAt(editor.getCaretModel().getOffset());
+        PsiClass psiClass = PsiTreeUtil.getParentOfType(element, PsiClass.class);
+        return psiClass;
+    }
 
 }

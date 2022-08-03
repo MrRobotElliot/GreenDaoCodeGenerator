@@ -5,7 +5,7 @@ import com.alibaba.fastjson.JSONArray;
 import  plugin.elliot.greendaocodegenerator.tools.JSONObject;
 
 /**
- * Created by dim on 16/11/7.
+ * Created by Elliot on 16/11/7.
  */
 public enum DataType {
 

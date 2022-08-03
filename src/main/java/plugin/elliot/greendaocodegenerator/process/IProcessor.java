@@ -5,7 +5,7 @@ import com.intellij.psi.PsiElementFactory;
 import plugin.elliot.greendaocodegenerator.entity.ClassEntity;
 
 /**
- * Created by dim on 16/11/8.
+ * Created by Elliot on 16/11/8.
  */
 public interface IProcessor {
 

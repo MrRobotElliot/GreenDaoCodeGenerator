@@ -1,11 +1,14 @@
 package plugin.elliot.greendaocodegenerator.config;
 
+import com.intellij.openapi.project.Project;
+
 /**
- * Created by dim on 15/5/31.
+ * Created by Elliot on 15/5/31.
  */
 public class Constant {
 
     public static String sInstanceType = "Entity";
+    public static Project sProject = null;
     public static final String DEFAULT_PREFIX = "_$";
     public static String FIXME = "// FIXME check this code";
 

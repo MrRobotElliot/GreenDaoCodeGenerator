@@ -4,7 +4,7 @@ import com.intellij.ide.util.PropertiesComponent;
 
 
 /**
- * Created by dim on 15/5/31.
+ * Created by Elliot on 15/5/31.
  */
 
 public class Config {
@@ -15,7 +15,7 @@ public class Config {
     /**
      * 是否使用注解
      */
-    private boolean useAnnotation;
+    private boolean useAnnotation = true;
 
     private boolean arrayFromData = false;
     private boolean arrayFromData1 = false;

@@ -8,7 +8,7 @@ import plugin.elliot.greendaocodegenerator.entity.MoudelLibrary;
 
 
 /**
- * Created by dim on 16/11/7.
+ * Created by Elliot on 16/11/7.
  */
 public class ClassProcessor {
 

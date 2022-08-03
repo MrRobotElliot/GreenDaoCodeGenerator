@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 
 
 /**
- * Created by dim on 2015/8/21.
+ * Created by Elliot on 2015/8/21.
  * 把 json 转成 实体类
  */
 public class ConvertBridge {
@@ -56,7 +56,7 @@ public class ConvertBridge {
     /**
      * 声明的类
      */
-    private Map<String, ClassEntity> declareClass;
+    private Map<String, ClassEntity> declareClass;  
 
     /**
      * 生成的类

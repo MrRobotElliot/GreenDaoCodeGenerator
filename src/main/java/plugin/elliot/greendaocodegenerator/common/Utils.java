@@ -5,7 +5,7 @@ import  plugin.elliot.greendaocodegenerator.tools.JSONObject;
 import java.util.List;
 
 /**
- * Created by dim on 16/11/7.
+ * Created by Elliot on 16/11/7.
  */
 public class Utils {
 

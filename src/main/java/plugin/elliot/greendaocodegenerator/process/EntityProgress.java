@@ -26,7 +26,6 @@ public class EntityProgress extends Processor {
             visitor.onEndProcess(classEntity, factory, cls);
         }
         formatJavCode(cls);
-        checkClassName(cls);
     }
 
     @Override
@@ -62,8 +61,12 @@ public class EntityProgress extends Processor {
         generateClass.delete();
     }
 
-
-
+    /**
+     * 注入实体注解
+     *
+     * @param factory
+     * @param generateClass
+     */
     private void injectEntityAnotaion(PsiElementFactory factory, PsiClass generateClass) {
         if (factory == null || generateClass == null) {
             return;
@@ -88,7 +91,13 @@ public class EntityProgress extends Processor {
             }
 
             if (!isHasNoArgsConstructoryFlag) {
-                PsiAnnotation annotationFromText = factory.createAnnotationFromText("@Entity(nameInDb = \"" + generateClass.getName() + "Tab\")", generateClass);
+                String tabName = "";
+                if (generateClass.getName().contains("Entity")) {
+                    tabName = generateClass.getName().substring(0, generateClass.getName().lastIndexOf("Entity"));
+                } else {
+                    tabName = generateClass.getName();
+                }
+                PsiAnnotation annotationFromText = factory.createAnnotationFromText("@Entity(nameInDb = \"" + tabName + "Tab\")", generateClass);
                 modifierList.addBefore(annotationFromText, firstChild);
             }
 
@@ -146,10 +155,19 @@ public class EntityProgress extends Processor {
         }
         generateConstructor(factory, cls, classEntity);
         generateGetterAndSetter(factory, cls, classEntity); // 生成get、set方法
-        generateConvertMethod(factory, cls, classEntity); // 生成转换方法
+//        generateConvertMethod(factory, cls, classEntity); // 生成转换方法
         onEndProcess(classEntity, factory, cls, visitor);
     }
 
+
+    /**
+     * 生成字段
+     *
+     * @param factory
+     * @param fieldEntity
+     * @param cls
+     * @param classEntity
+     */
     protected void generateField(PsiElementFactory factory, FieldEntity fieldEntity, PsiClass cls, ClassEntity classEntity) {
 
         if (fieldEntity.isGenerate()) {
@@ -179,6 +197,14 @@ public class EntityProgress extends Processor {
         }
     }
 
+    /**
+     * 生成类
+     *
+     * @param factory
+     * @param classEntity
+     * @param parentClass
+     * @param visitor
+     */
     protected void generateClass(PsiElementFactory factory, ClassEntity classEntity, PsiClass parentClass, IProcessor visitor) {
 
         onStartGenerateClass(factory, classEntity, parentClass, visitor);
@@ -219,11 +245,22 @@ public class EntityProgress extends Processor {
         }
     }
 
+    /**
+     * 生成构造函数
+     *
+     * @param factory
+     * @param cls
+     * @param classEntity
+     */
     protected void generateConstructor(PsiElementFactory factory, PsiClass cls, ClassEntity classEntity) {
         cls.add(factory.createConstructor(cls.getName(), cls));
         String annGenerated = "    @Generated\n";
         StringBuilder constructorSb = new StringBuilder();
-        constructorSb.append(cls.getName() + "Entity(");
+        if (constructorSb.toString().contains("Entity")) {
+            constructorSb.append(cls.getName() + "(");
+        } else {
+            constructorSb.append(cls.getName() + "Entity(");
+        }
 
         for (FieldEntity field : classEntity.getFields()) {
             String fieldName = field.getGenerateFieldName();
@@ -252,6 +289,13 @@ public class EntityProgress extends Processor {
 
     }
 
+    /**
+     * 生成 Get 和 Set
+     *
+     * @param factory
+     * @param cls
+     * @param classEntity
+     */
     protected void generateGetterAndSetter(PsiElementFactory factory, PsiClass cls, ClassEntity classEntity) {
         //使用Lombok无需生成Getter与Setter
 //        if (Config.getInstant().isUseLombok()) {
@@ -414,17 +458,5 @@ public class EntityProgress extends Processor {
     }
 
 
-    private void checkClassName(PsiClass generateClass) {
-        if (null == generateClass) {
-            String srcClassName = generateClass.getName();
-            String desClassName = "";
-            if (!srcClassName.contains(MoudelLibrary.ENTITY.getType())) {
-                desClassName = srcClassName + MoudelLibrary.ENTITY.getType();
-            } else {
-                desClassName = srcClassName;
-            }
-            generateClass.setName(desClassName);
-        }
-    }
 }
 

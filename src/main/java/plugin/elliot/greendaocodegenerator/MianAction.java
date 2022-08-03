@@ -13,6 +13,8 @@ import com.intellij.psi.*;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.util.PsiUtilBase;
 import plugin.elliot.greendaocodegenerator.basic.MessageDialog;
+import plugin.elliot.greendaocodegenerator.common.PsiClassUtil;
+import plugin.elliot.greendaocodegenerator.config.Constant;
 import plugin.elliot.greendaocodegenerator.ui.JsonDialog;
 import com.intellij.psi.util.PsiTypesUtil;
 
@@ -35,9 +37,11 @@ public class MianAction extends BaseGenerateAction {
     public void actionPerformed(AnActionEvent e) {
         PsiFile psiFile = e.getData(LangDataKeys.PSI_FILE); // 获取当前操作的文件，是一个PsiFile类型
         Project project = e.getData(PlatformDataKeys.PROJECT);
+        Constant.sProject = project;
         Editor editor = e.getData(PlatformDataKeys.EDITOR);
 //        PsiFile mFile = PsiUtilBase.getPsiFileInEditor(editor, project);
-        PsiClass psiClass = getTargetClass(editor, psiFile);
+//        PsiClass psiClass = getTargetClass(editor, psiFile);
+        PsiClass psiClass = PsiClassUtil.getCurrentPsiClass(e);
         if (psiFile.getFileType().getName().equals("JAVA")) {
             String fileFullName = psiFile.getName();
             String fileName = fileFullName.substring(0, fileFullName.lastIndexOf("."));

@@ -1,7 +1,7 @@
 package plugin.elliot.greendaocodegenerator.tools.ux;
 
 /**
- * Created by dim on 16/11/7.
+ * Created by Elliot on 16/11/7.
  */
 public interface Selector {
 
