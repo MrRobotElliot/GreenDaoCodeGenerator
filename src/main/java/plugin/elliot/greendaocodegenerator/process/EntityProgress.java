@@ -2,8 +2,14 @@ package plugin.elliot.greendaocodegenerator.process;
 
 import com.intellij.psi.*;
 import com.intellij.psi.javadoc.PsiDocComment;
+import com.intellij.psi.search.GlobalSearchScope;
+import com.intellij.psi.search.PsiShortNamesCache;
+import com.intellij.util.IncorrectOperationException;
+import com.thoughtworks.qdox.model.JavaClass;
 import org.apache.http.util.TextUtils;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import plugin.elliot.greendaocodegenerator.common.*;
 import plugin.elliot.greendaocodegenerator.config.Config;
 import plugin.elliot.greendaocodegenerator.config.Constant;
@@ -12,9 +18,11 @@ import plugin.elliot.greendaocodegenerator.entity.FieldEntity;
 import plugin.elliot.greendaocodegenerator.entity.MoudelLibrary;
 
 public class EntityProgress extends Processor {
+    private static final Logger logger = LoggerFactory.getLogger(EntityProgress.class);
+
     @Override
     public void onStarProcess(ClassEntity classEntity, PsiElementFactory factory, PsiClass cls, IProcessor visitor) {
-
+        guidePacket(factory, cls);
         injectEntityAnotaion(factory, cls);
 //        clearHadData(factory, cls);
     }
@@ -54,12 +62,50 @@ public class EntityProgress extends Processor {
         }
     }
 
+
     private void clearHadData(PsiElementFactory factory, PsiClass generateClass) {
         if (factory == null || generateClass == null) {
             return;
         }
         generateClass.delete();
     }
+
+    /**
+     * 导包
+     */
+    private void guidePacket(PsiElementFactory factory, PsiClass generateClass) {
+        if (factory == null || generateClass == null) {
+            return;
+        }
+        String importClassName = "org.greenrobot.greendao.annotation.Property";
+        addImport(factory, generateClass, importClassName);
+
+    }
+
+    private void addImport(PsiElementFactory elementFactory, PsiClass generateClass, String fullyQualifiedName) {
+        final PsiFile file = generateClass.getContainingFile();
+        if (!(file instanceof PsiJavaFile)) {
+            return;
+        }
+        final PsiJavaFile javaFile = (PsiJavaFile) file;
+
+        final PsiImportList importList = javaFile.getImportList();
+        if (importList == null) {
+            return;
+        }
+
+        // Check if already imported
+        for (PsiImportStatementBase is : importList.getAllImportStatements()) {
+            String impQualifiedName = is.getImportReference().getQualifiedName();
+            if (fullyQualifiedName.equals(impQualifiedName)) {
+                return; // Already imported so nothing neede
+            }
+
+        }
+        // Not imported yet so add it
+        importList.add(elementFactory.createImportStatementOnDemand(fullyQualifiedName));
+    }
+
 
     /**
      * 注入实体注解

@@ -2,7 +2,9 @@ package plugin.elliot.greendaocodegenerator.ui;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
+import com.intellij.notification.NotificationType;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.MessageType;
 import com.intellij.psi.PsiClass;
@@ -80,6 +82,12 @@ public class JsonDialog extends JDialog implements ConvertBridge.Operator {
     }
 
     private void initListener() {
+        formatBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                formatJson();
+            }
+        });
         previewBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -166,6 +174,32 @@ public class JsonDialog extends JDialog implements ConvertBridge.Operator {
         dialog.setSize(1080, 512);
         dialog.setLocationRelativeTo(null);
         dialog.setVisible(true);
+    }
+
+    private void formatJson() {
+        String json = jsonTA.getText();
+        json = json.trim();
+        try {
+            if (json.startsWith("{")) {
+                plugin.elliot.greendaocodegenerator.tools.JSONObject jsonObject = new plugin.elliot.greendaocodegenerator.tools.JSONObject(json);
+                String formatJson = jsonObject.toString(4);
+                jsonTA.setText(formatJson);
+            } else if (json.startsWith("[")) {
+                plugin.elliot.greendaocodegenerator.tools.JSONArray jsonArray = new plugin.elliot.greendaocodegenerator.tools.JSONArray(json);
+                String formatJson = jsonArray.toString(4);
+                jsonTA.setText(formatJson);
+            }
+        } catch (JSONException jsonException) {
+            try {
+                String goodJson = JsonUtils.removeComment(json);
+                String formatJson = JsonUtils.formatJson(goodJson);
+                jsonTA.setText(formatJson);
+            } catch (Exception exception) {
+                exception.printStackTrace();
+                NotificationCenter.sendNotificationForProject("json格式不正确，格式需要标准的json或者json5", NotificationType.ERROR,project);
+                return;
+            }
+        }
     }
 
 

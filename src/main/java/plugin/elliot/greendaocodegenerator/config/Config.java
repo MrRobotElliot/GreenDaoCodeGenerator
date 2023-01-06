@@ -149,13 +149,25 @@ public class Config {
 
     public String geFullNameAnnotation() {
         if (annotationStr.equals(Constant.greenDaoAnnotation)) {
-            return Constant.greenDaoFullNameAnnotation;
+            return Constant.greenDaoNameAnnotation;
         }
 
         if (annotationStr.equals(Constant.roomAnnotation)) {
             return Constant.roomFullNameAnnotation;
         }
         return annotationStr.replaceAll("\\(", "(").replaceAll("\\)", ")").replaceAll("\\s\\*", "");
+    }
+
+    public String geNameAnnotation(){
+        if (annotationStr.equals(Constant.greenDaoAnnotation)) {
+            return Constant.greenDaoNameAnnotation;
+        }
+
+        if (annotationStr.equals(Constant.roomAnnotation)) {
+            return Constant.roomFullNameAnnotation;
+        }
+        return annotationStr.replaceAll("\\(", "(").replaceAll("\\)", ")").replaceAll("\\s\\*", "");
+
     }
 
     public boolean isGenerateComments() {

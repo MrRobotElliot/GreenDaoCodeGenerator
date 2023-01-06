@@ -6,6 +6,7 @@ import com.intellij.openapi.actionSystem.LangDataKeys;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.*;
 import com.intellij.psi.impl.source.PsiJavaFileImpl;
@@ -167,18 +168,9 @@ public class PsiClassUtil {
         return classInModule != null;
     }
 
-
-//    public static  a(PsiElementFactory factory){
-//        PsiElement psiElement = cls.addAfter(factory.createCommentFromText("// todo dim " + fieldEntity.getFieldName(), cls), add);
-////                    CharTable charTableByTree = SharedImplUtil.findCharTableByTree(
-////                            (ASTNode) psiElement);
-////                    PsiWhiteSpace psiWhiteSpace = (PsiWhiteSpace) Factory.createSingleLeafElement(TokenType.WHITE_SPACE, "\n\n",
-////                                    charTableByTree, PsiManager.getInstance(cls.getProject()));
-////                    cls.addAfter(psiWhiteSpace, psiElement);
-//    }
-
     /**
      * 获得当前文件的PisClass
+     *
      * @param e
      * @return
      */
@@ -192,14 +184,16 @@ public class PsiClassUtil {
 
     /**
      * 获得当前文件的PisClass
+     *
      * @param psiFile
      * @param editor
      * @return
      */
-    public static PsiClass getCurrentPsiClass(PsiFile psiFile,  Editor editor) {
+    public static PsiClass getCurrentPsiClass(PsiFile psiFile, Editor editor) {
         PsiElement element = psiFile.findElementAt(editor.getCaretModel().getOffset());
         PsiClass psiClass = PsiTreeUtil.getParentOfType(element, PsiClass.class);
         return psiClass;
     }
+
 
 }
