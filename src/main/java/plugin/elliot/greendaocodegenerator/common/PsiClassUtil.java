@@ -196,4 +196,35 @@ public class PsiClassUtil {
     }
 
 
+    /**
+     * 添加包
+     *
+     * @param elementFactory
+     * @param cls
+     * @param fullyQualifiedName
+     */
+    public static void addImport(PsiElementFactory elementFactory, PsiClass cls, String fullyQualifiedName) {
+        final PsiFile file = cls.getContainingFile();
+        if (!(file instanceof PsiJavaFile)) {
+            return;
+        }
+        final PsiJavaFile javaFile = (PsiJavaFile) file;
+
+        PsiImportList importList = javaFile.getImportList();
+        if (importList == null) {
+            return;
+        }
+
+        // Check if already imported
+        for (PsiImportStatementBase is : importList.getAllImportStatements()) {
+            String impQualifiedName = is.getImportReference().getQualifiedName();
+            if (fullyQualifiedName.equals(impQualifiedName)) {
+                return; // Already imported so nothing neede
+            }
+
+        }
+        // Not imported yet so add it
+        importList.add(elementFactory.createImportStatementOnDemand(fullyQualifiedName));
+    }
+
 }
