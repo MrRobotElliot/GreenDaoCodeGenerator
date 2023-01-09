@@ -81,8 +81,6 @@ public class EntityProgress extends Processor {
     }
 
 
-
-
     /**
      * 注入实体注解
      *
@@ -175,8 +173,8 @@ public class EntityProgress extends Processor {
         for (ClassEntity innerClass : classEntity.getInnerClasses()) {
             generateClass(factory, innerClass, cls, visitor);
         }
-        generateConstructor(factory, cls, classEntity);
-        generateGetterAndSetter(factory, cls, classEntity); // 生成get、set方法
+        generateConstructor(classEntity, factory, cls);
+        generateGetterAndSetter(classEntity, factory, cls); // 生成get、set方法
 //        generateConvertMethod(factory, cls, classEntity); // 生成转换方法
         onEndProcess(classEntity, factory, cls, visitor);
     }
@@ -257,7 +255,7 @@ public class EntityProgress extends Processor {
                 for (FieldEntity fieldEntity : classEntity.getFields()) {
                     generateField(factory, fieldEntity, generateClass, classEntity);
                 }
-                generateGetterAndSetter(factory, generateClass, classEntity);
+                generateGetterAndSetter(classEntity, factory, generateClass);
                 generateConvertMethod(factory, generateClass, classEntity);
             }
         }
@@ -274,41 +272,35 @@ public class EntityProgress extends Processor {
      * @param cls
      * @param classEntity
      */
-    protected void generateConstructor(PsiElementFactory factory, PsiClass cls, ClassEntity classEntity) {
+    protected void generateConstructor(ClassEntity classEntity, PsiElementFactory factory, PsiClass cls) {
         cls.add(factory.createConstructor(cls.getName(), cls));
         String annGenerated = "    @Generated\n";
         StringBuilder constructorSb = new StringBuilder();
-        if (constructorSb.toString().contains("Entity")) {
+        if (cls.getName().contains("Entity")) {
             constructorSb.append(cls.getName() + "(");
         } else {
             constructorSb.append(cls.getName() + "Entity(");
         }
-
+        // 构造函数的参数
         for (FieldEntity field : classEntity.getFields()) {
             String fieldName = field.getGenerateFieldName();
             String typeStr = field.getRealType();
             String variable = typeStr + " " + fieldName + ",";
             constructorSb.append(variable);
         }
-
         String subLastDouhao = constructorSb.substring(0, constructorSb.lastIndexOf(","));
         constructorSb.delete(0, constructorSb.length());
         constructorSb.append(subLastDouhao);
         constructorSb.append("){\n");
         constructorSb.append("\tsuper();\n");
-
+        //构造函数的成员变量
         for (FieldEntity field : classEntity.getFields()) {
             String fieldName = field.getGenerateFieldName();
             String thisStr = ("\tthis." + fieldName + " = " + fieldName + ";\n");
             constructorSb.append(thisStr);
         }
         constructorSb.append("}");
-        try {
-            cls.add(factory.createMethodFromText(constructorSb.toString(), cls));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
+        cls.add(factory.createMethodFromText(constructorSb.toString(), cls));
     }
 
     /**
@@ -318,7 +310,7 @@ public class EntityProgress extends Processor {
      * @param cls
      * @param classEntity
      */
-    protected void generateGetterAndSetter(PsiElementFactory factory, PsiClass cls, ClassEntity classEntity) {
+    protected void generateGetterAndSetter(ClassEntity classEntity, PsiElementFactory factory, PsiClass cls) {
         //使用Lombok无需生成Getter与Setter
 //        if (Config.getInstant().isUseLombok()) {
 //            return;
@@ -422,7 +414,7 @@ public class EntityProgress extends Processor {
         }
         //添加字段序列化注解
         if (!isNumberKeyFieldAsMap(fieldEntity) && (filedName.equals(fieldEntity.getKey())) || Config.getInstant().isUseAnnotation()) {
-            String nameInDb = generatorDataName(fieldEntity.getKey());
+            String nameInDb = PsiClassUtil.generatorDataNameInDb(fieldEntity.getKey());
             fieldSb.append(Config.getInstant().geFullNameAnnotation().replaceAll("\\{filed\\}", nameInDb));
         }
         //添加字段类型与名称
@@ -450,27 +442,6 @@ public class EntityProgress extends Processor {
         return Config.getInstant().isUseNumberKeyAsMap() && fieldEntity.getFullNameType().startsWith("_$");
     }
 
-    @NotNull
-    private String generatorDataName(String fielName) {
-        Boolean isHasUp = false;
-        String nameInDbUp = "";
-        int preIndex = 0;
-        for (int i = 0; i < fielName.length(); i++) {
-            String ch = fielName.substring(i, i + 1);
-            if (ch == ch.toUpperCase()) {
-                isHasUp = true;
-                nameInDbUp += fielName.substring(preIndex, i);
-                nameInDbUp = nameInDbUp.toUpperCase() + "_";
-                preIndex = i;
-            }
-        }
-        if (isHasUp) {
-            nameInDbUp += fielName.substring(preIndex).toUpperCase();
-        } else {
-            nameInDbUp = fielName.toUpperCase();
-        }
-        return nameInDbUp;
-    }
 
     protected void generateConvertMethod(PsiElementFactory factory, PsiClass cls, ClassEntity classEntity) {
         if (cls == null || cls.getName() == null) {

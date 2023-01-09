@@ -6,7 +6,6 @@ import com.intellij.openapi.actionSystem.LangDataKeys;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
-import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.*;
 import com.intellij.psi.impl.source.PsiJavaFileImpl;
@@ -14,6 +13,7 @@ import com.intellij.psi.search.EverythingGlobalScope;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.apache.http.util.TextUtils;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 
@@ -225,6 +225,52 @@ public class PsiClassUtil {
         }
         // Not imported yet so add it
         importList.add(elementFactory.createImportStatementOnDemand(fullyQualifiedName));
+    }
+
+
+    /**
+     * 生成在数据库中的名字
+     *
+     * @param fielName
+     * @return
+     */
+    @NotNull
+    public static String generatorDataNameInDb(String fielName) {
+        Boolean isHasUp = false;
+        String nameInDbUp = "";
+        int preIndex = 0;
+        for (int i = 0; i < fielName.length(); i++) {
+            String ch = fielName.substring(i, i + 1);
+            if (ch == ch.toUpperCase()) {
+                isHasUp = true;
+                nameInDbUp += fielName.substring(preIndex, i);
+                nameInDbUp = nameInDbUp.toUpperCase() + "_";
+                preIndex = i;
+            }
+        }
+        if (isHasUp) {
+            nameInDbUp += fielName.substring(preIndex).toUpperCase();
+        } else {
+            nameInDbUp = fielName.toUpperCase();
+        }
+        return nameInDbUp;
+    }
+
+
+    public static String exchangDataTypeFromJsonType(String jsonType) {
+        String exchangedType = "";
+        switch (jsonType) {
+            case "String":
+                exchangedType = "TEXT";
+                break;
+            case "Integer":
+                exchangedType = "INTEGER";
+                break;
+            case "Long":
+                exchangedType = "LONG";
+                break;
+        }
+        return exchangedType;
     }
 
 }

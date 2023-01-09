@@ -70,4 +70,16 @@ public class StringUtils {
         return true;
     }
 
+
+    /**
+     * 首字母大写
+     *
+     * @param text
+     * @return
+     */
+    public static String capitalLetter(String text) {
+        return text.substring(0, 1).toUpperCase() + text.substring(1);
+    }
+
+
 }
