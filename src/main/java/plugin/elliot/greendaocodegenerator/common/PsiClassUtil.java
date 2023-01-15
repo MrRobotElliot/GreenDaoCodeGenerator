@@ -13,6 +13,7 @@ import com.intellij.psi.search.EverythingGlobalScope;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.apache.http.util.TextUtils;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -257,7 +258,8 @@ public class PsiClassUtil {
     }
 
 
-    public static String exchangDataTypeFromJsonType(String jsonType) {
+    @Contract(pure = true)
+    public static String exchangTypeOfDataFromJson(String jsonType) {
         String exchangedType = "";
         switch (jsonType) {
             case "String":

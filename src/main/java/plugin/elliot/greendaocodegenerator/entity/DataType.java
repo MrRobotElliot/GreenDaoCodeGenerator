@@ -1,8 +1,8 @@
 package plugin.elliot.greendaocodegenerator.entity;
 
 
-import com.alibaba.fastjson.JSONArray;
-import  plugin.elliot.greendaocodegenerator.tools.JSONObject;
+import plugin.elliot.greendaocodegenerator.tools.JSONArray;
+import plugin.elliot.greendaocodegenerator.tools.JSONObject;
 
 /**
  * Created by Elliot on 16/11/7.
@@ -12,13 +12,7 @@ public enum DataType {
     /**
      * 数据类型
      */
-    Data_Type_Boolean("boolean"),
-    Data_Type_Int("int"),
-    Data_Type_Double("double"),
-    Data_Type_long("long"),
-    Data_Type_String("String"),
-    Data_type_Object("Object"),
-    Data_Type_Array("array");
+    Data_Type_Boolean("boolean"), Data_Type_Int("int"), Data_Type_Double("double"), Data_Type_long("long"), Data_Type_String("String"), Data_type_Object("Object"), Data_Type_Array("array");
 
     private String value;
 

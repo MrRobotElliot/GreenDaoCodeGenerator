@@ -181,7 +181,7 @@ public class DaoProcessor extends Processor {
             if (fieldEntity.getFieldName().equals("id")) {
                 createTableSb.append("+ \"ID INTEGER PRIMARY KEY AUTOINCREMENT,  \"\n");
             } else {
-                createTableSb.append("+ \"" + PsiClassUtil.generatorDataNameInDb(fieldEntity.getFieldName()) + " " + PsiClassUtil.exchangDataTypeFromJsonType(fieldEntity.getType()) + ",\"\n");
+                createTableSb.append("+ \"" + PsiClassUtil.generatorDataNameInDb(fieldEntity.getFieldName()) + " " + PsiClassUtil.exchangTypeOfDataFromJson(fieldEntity.getType()) + ",\"\n");
             }
         }
         createTableSb.delete(createTableSb.length() - 3, createTableSb.length());

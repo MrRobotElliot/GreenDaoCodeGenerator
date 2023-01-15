@@ -1,7 +1,7 @@
 package plugin.elliot.greendaocodegenerator.entity;
 
 
-import com.alibaba.fastjson.JSONArray;
+import plugin.elliot.greendaocodegenerator.tools.JSONArray;
 import  plugin.elliot.greendaocodegenerator.tools.JSONObject;
 import org.apache.http.util.TextUtils;
 
@@ -129,7 +129,7 @@ public class IterableFieldEntity extends FieldEntity {
         if (deep <= current) {
             return null;
         }
-        if (array.size() > 0) {
+        if (array.length() > 0) {
             if (deep == current + 1 && !(array.get(0) instanceof JSONArray)) {
                 return array.get(0);
             }
