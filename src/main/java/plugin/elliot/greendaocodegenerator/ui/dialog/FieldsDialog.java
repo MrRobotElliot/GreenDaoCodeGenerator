@@ -1,4 +1,4 @@
-package plugin.elliot.greendaocodegenerator.ui;
+package plugin.elliot.greendaocodegenerator.ui.dialog;
 
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.project.Project;

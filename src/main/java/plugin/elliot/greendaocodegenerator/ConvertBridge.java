@@ -11,7 +11,7 @@ import com.intellij.psi.util.PsiTypesUtil;
 import org.apache.http.util.TextUtils;
 import plugin.elliot.greendaocodegenerator.common.*;
 import plugin.elliot.greendaocodegenerator.entity.*;
-import plugin.elliot.greendaocodegenerator.ui.FieldsDialog;
+import plugin.elliot.greendaocodegenerator.ui.dialog.FieldsDialog;
 
 import java.io.File;
 import java.io.PrintWriter;

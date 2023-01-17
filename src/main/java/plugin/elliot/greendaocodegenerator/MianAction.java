@@ -11,7 +11,8 @@ import com.intellij.psi.*;
 import plugin.elliot.greendaocodegenerator.basic.MessageDialog;
 import plugin.elliot.greendaocodegenerator.common.PsiClassUtil;
 import plugin.elliot.greendaocodegenerator.config.Constant;
-import plugin.elliot.greendaocodegenerator.ui.JsonDialog;
+import plugin.elliot.greendaocodegenerator.ui.dialog.InitDialog;
+import plugin.elliot.greendaocodegenerator.ui.dialog.JsonDialog;
 
 public class MianAction extends BaseGenerateAction {
 
@@ -31,8 +32,7 @@ public class MianAction extends BaseGenerateAction {
         Constant.sRootProject = project;
         Editor editor = e.getData(PlatformDataKeys.EDITOR);
         Constant.sEditor = editor;
-//        PsiFile mFile = PsiUtilBase.getPsiFileInEditor(editor, project);
-//        PsiClass psiClass = getTargetClass(editor, psiFile);
+        /*// 显示 JsonDialog
         PsiClass psiClass = PsiClassUtil.getCurrentPsiClass(e);
         if (psiFile.getFileType().getName().equals("JAVA")) {
             String fileFullName = psiFile.getName();
@@ -40,7 +40,10 @@ public class MianAction extends BaseGenerateAction {
             JsonDialog.showDlg(fileName, psiClass, psiFile, project);
         } else {
             MessageDialog.showDlg("当前文件 " + psiFile.getName() + " 不是Java文件！");
-        }
+        }*/
+
+        // 显示 InitDialog
+        InitDialog.showDlg(project);
     }
 
 }

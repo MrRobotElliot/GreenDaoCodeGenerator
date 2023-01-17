@@ -1,4 +1,4 @@
-package plugin.elliot.greendaocodegenerator.ui;
+package plugin.elliot.greendaocodegenerator.ui.dialog;
 
 import com.intellij.notification.NotificationType;
 import com.intellij.openapi.project.Project;
@@ -16,6 +16,8 @@ import plugin.elliot.greendaocodegenerator.entity.ClassEntity;
 import plugin.elliot.greendaocodegenerator.entity.MoudelLibrary;
 import plugin.elliot.greendaocodegenerator.tools.JSONException;
 import plugin.elliot.greendaocodegenerator.tools.JSONObject;
+import plugin.elliot.greendaocodegenerator.ui.NotificationCenter;
+import plugin.elliot.greendaocodegenerator.ui.Toast;
 
 import javax.swing.*;
 import javax.swing.border.Border;
