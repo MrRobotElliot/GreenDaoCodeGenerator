@@ -10,7 +10,7 @@ build/
 .idea/compiler.xml
 .idea/libraries/
 .idea/misc.xml
-.run/*
+.run
 *.iws
 *.iml
 *.ipr
