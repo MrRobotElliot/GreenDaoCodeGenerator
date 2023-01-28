@@ -32,18 +32,21 @@ public class MianAction extends BaseGenerateAction {
         Constant.sRootProject = project;
         Editor editor = e.getData(PlatformDataKeys.EDITOR);
         Constant.sEditor = editor;
-        /*// 显示 JsonDialog
-        PsiClass psiClass = PsiClassUtil.getCurrentPsiClass(e);
-        if (psiFile.getFileType().getName().equals("JAVA")) {
-            String fileFullName = psiFile.getName();
-            String fileName = fileFullName.substring(0, fileFullName.lastIndexOf("."));
-            JsonDialog.showDlg(fileName, psiClass, psiFile, project);
+        if (!Constant.bInited) {
+            // 显示 InitDialog
+            InitDialog.showDlg(project);
         } else {
-            MessageDialog.showDlg("当前文件 " + psiFile.getName() + " 不是Java文件！");
-        }*/
+            // 显示 JsonDialog
+            PsiClass psiClass = PsiClassUtil.getCurrentPsiClass(e);
+            if (psiFile.getFileType().getName().equals("JAVA")) {
+                String fileFullName = psiFile.getName();
+                String fileName = fileFullName.substring(0, fileFullName.lastIndexOf("."));
+                JsonDialog.showDlg(fileName, psiClass, psiFile, project);
+            } else {
+                MessageDialog.showDlg("当前文件 " + psiFile.getName() + " 不是Java文件！");
+            }
+        }
 
-        // 显示 InitDialog
-        InitDialog.showDlg(project);
     }
 
 }

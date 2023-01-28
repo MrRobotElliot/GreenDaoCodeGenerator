@@ -12,9 +12,11 @@ public class Constant {
     public static Project sRootProject = null;
 
     public static Editor sEditor = null;
-    public static Project sEntityProject = null;
+    public static boolean bInited = false;
     public static final String DEFAULT_PREFIX = "_$";
     public static String FIXME = "// FIXME check this code";
+
+
 
     public static final String privateStr = "   private String name;\n" + "\n" + "    public void setName(String name){\n" + "        this.name=name;\n" + "    }\n" + "\n" + "    public String getName(){\n" + "        return name;\n" + "    }";
     public static final String publicStr = "    public String name;";

@@ -6,12 +6,19 @@ import com.intellij.psi.*;
 import com.intellij.psi.impl.file.PsiDirectoryFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import plugin.elliot.greendaocodegenerator.config.Constant;
 
 import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class InitDialog extends JDialog {
+
+    private static final String DIR_TEXT_DATABASE = "dataBase";
+    private static final String DIR_TEXT_DAO = "dao";
+    private static final String DIR_TEXT_ENTITY = "entity";
+    private static final String DIR_TEXT_MANAGEER = "manageer";
+
     private static final Logger logger = LoggerFactory.getLogger(InitDialog.class);
 
     private JPanel contentPane;
@@ -24,12 +31,28 @@ public class InitDialog extends JDialog {
 
     private Project project;
 
-    private PsiDirectory dataBataDir = null;
-    private PsiDirectory daoDir = null;
-    private PsiDirectory entityDir = null;
-    private PsiDirectory manageerDir = null;
+    private PsiDirectory dataBasePDir = null;
+    private PsiDirectory daoPDir = null;
+    private PsiDirectory entityPDir = null;
+    private PsiDirectory manageerPDir = null;
+
+    private StringBuilder sbDbDri = null;
+
     enum EmDir {
 
+    }
+
+    private static InitDialog INSTANCE = null;
+
+    public static InitDialog getInstance(Project project) {
+        if (null == INSTANCE) {
+            synchronized (InitDialog.class) {
+                if (null == INSTANCE) {
+                    INSTANCE = new InitDialog(project);
+                }
+            }
+        }
+        return INSTANCE;
     }
 
     public InitDialog(Project project) {
@@ -38,6 +61,7 @@ public class InitDialog extends JDialog {
         getRootPane().setDefaultButton(okBtn);
         initView();
         initLinstener();
+        initData();
     }
 
     private void initView() {
@@ -48,16 +72,31 @@ public class InitDialog extends JDialog {
         chooseDirBtn.addActionListener(al -> {
             chooseDirOfDataBaseDir();
         });
+        okBtn.addActionListener(al -> {
+            completeInit();
+        });
     }
 
+    private void initData() {
+        sbDbDri = new StringBuilder();
+    }
+
+
     private void chooseDirOfDataBaseDir() {
-        PackageChooserDialog selector = new PackageChooserDialog("Select a Package", project);
+        PackageChooserDialog selector = new PackageChooserDialog("选择包路径", project);
         selector.show();
-        PsiPackage selectedPackage = selector.getSelectedPackage();
+        if (selector.isOK()) {
+            getDataBasePDir(selector.getSelectedPackage());
+            InitDialog.getInstance(project).setDbDirPath();
+            InitDialog.showDlg(project);
+        }
+    }
+
+    private void getDataBasePDir(PsiPackage selectedPackage) {
         if (selectedPackage != null) {
             //创建目录
-            String rootPath = project.getBasePath();
             String selectPkg = selectedPackage.getQualifiedName();
+            sbDbDri.append(selectPkg);
             List<String> subDirsOfSelctPkg = new ArrayList<>();
             int preIndexOfDot = -1;
             for (int i = 0; i < selectPkg.length(); i++) {
@@ -79,27 +118,40 @@ public class InitDialog extends JDialog {
                 for (int i = 0; i < subDirsOfSelctPkg.size(); i++) {
                     preSubDir = getSpecifiedSuDir(preSubDir, subDirsOfSelctPkg.get(i));
                 }
-                if (!hasSpecifiedSuDir(preSubDir, "dataBase")) {
-                    dataBataDir = preSubDir.createSubdirectory("dataBase");
+                if (!hasSpecifiedSuDir(preSubDir, DIR_TEXT_DATABASE) && !preSubDir.getName().equals(DIR_TEXT_DATABASE)) {
+                    dataBasePDir = preSubDir.createSubdirectory(DIR_TEXT_DATABASE);
+                } else if (preSubDir.getName().equals(DIR_TEXT_DATABASE)) {
+                    dataBasePDir = preSubDir;
                 }
-                if (dataBataDir != null) {
-                    if (hasSpecifiedSuDir(dataBataDir, "dao")) {
-                        daoDir = dataBataDir.createSubdirectory("dao");
-                    }
-                    if (hasSpecifiedSuDir(dataBataDir, "entity")) {
-                        entityDir = dataBataDir.createSubdirectory("entity");
-                    }
-                    if (hasSpecifiedSuDir(dataBataDir, "manageer")) {
-                        manageerDir = dataBataDir.createSubdirectory("manageer");
-                    }
-
+                if (dataBasePDir != null) {
+                    sbDbDri.append(".").append(dataBasePDir.getName());
                 }
             }
 
+        }
+    }
+
+    private void createDataBaseDirAndSubDir() {
+        if (dataBasePDir != null) {
+            if (!hasSpecifiedSuDir(dataBasePDir, DIR_TEXT_DAO)) {
+                daoPDir = dataBasePDir.createSubdirectory(DIR_TEXT_DAO);
+            }
+            if (!hasSpecifiedSuDir(dataBasePDir, DIR_TEXT_ENTITY)) {
+                entityPDir = dataBasePDir.createSubdirectory(DIR_TEXT_ENTITY);
+            }
+            if (!hasSpecifiedSuDir(dataBasePDir, DIR_TEXT_MANAGEER)) {
+                manageerPDir = dataBasePDir.createSubdirectory(DIR_TEXT_MANAGEER);
+            }
 
         }
-
     }
+
+    private void completeInit() {
+        createDataBaseDirAndSubDir();
+        Constant.bInited = true;
+        INSTANCE.setVisible(false);
+    }
+
 
     private boolean hasSubDir(PsiDirectory rootDir) {
         return rootDir.getSubdirectories().length == 0 ? false : true;
@@ -112,17 +164,17 @@ public class InitDialog extends JDialog {
                 if (rootDir.getSubdirectories()[i].getName().equals(subDirName)) {
                     isCreated = true;
                     switch (subDirName) {
-                        case "dataBase":
-                            dataBataDir = rootDir.getSubdirectories()[i];
+                        case DIR_TEXT_DATABASE:
+                            dataBasePDir = rootDir.getSubdirectories()[i];
                             break;
-                        case "dao":
-                            daoDir = rootDir.getSubdirectories()[i];
+                        case DIR_TEXT_DAO:
+                            daoPDir = rootDir.getSubdirectories()[i];
                             break;
-                        case "entity":
-                            entityDir = rootDir.getSubdirectories()[i];
+                        case DIR_TEXT_ENTITY:
+                            entityPDir = rootDir.getSubdirectories()[i];
                             break;
-                        case "manageer":
-                            manageerDir = rootDir.getSubdirectories()[i];
+                        case DIR_TEXT_MANAGEER:
+                            manageerPDir = rootDir.getSubdirectories()[i];
                             break;
                     }
                 }
@@ -145,10 +197,17 @@ public class InitDialog extends JDialog {
 
 
     public static void showDlg(Project project) {
-        InitDialog dialog = new InitDialog(project);
-        dialog.setSize(1080, 512);
-        dialog.setLocationRelativeTo(null);
-        dialog.setVisible(true);
+        if (INSTANCE == null) {
+            INSTANCE = getInstance(project);
+            INSTANCE.setSize(1080, 512);
+            INSTANCE.setLocationRelativeTo(null);
+        } else {
+            INSTANCE.setVisible(true);
+        }
+    }
+
+    public void setDbDirPath() {
+        dbDirPathTF.setText(sbDbDri.toString());
     }
 
 
