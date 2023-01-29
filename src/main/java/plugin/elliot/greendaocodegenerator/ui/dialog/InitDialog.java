@@ -13,13 +13,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class InitDialog extends JDialog {
+    private static final Logger logger = LoggerFactory.getLogger(InitDialog.class);
 
     private static final String DIR_TEXT_DATABASE = "dataBase";
     private static final String DIR_TEXT_DAO = "dao";
     private static final String DIR_TEXT_ENTITY = "entity";
     private static final String DIR_TEXT_MANAGEER = "manageer";
 
-    private static final Logger logger = LoggerFactory.getLogger(InitDialog.class);
 
     private JPanel contentPane;
     private JTextField dbDirPathTF;
@@ -27,6 +27,7 @@ public class InitDialog extends JDialog {
     private JButton okBtn;
     private JButton cancleBtn;
     private JButton settingBtn;
+    private JTextField tableKeyTF;
 
 
     private Project project;
@@ -37,6 +38,12 @@ public class InitDialog extends JDialog {
     private PsiDirectory manageerPDir = null;
 
     private StringBuilder sbDbDri = null;
+    private StringBuilder sbDaoDir = null;
+
+    private StringBuilder sbEntityDir = null;
+    private StringBuilder sbManageerDir = null;
+
+    private String sTableKey = null;
 
     enum EmDir {
 
@@ -79,6 +86,9 @@ public class InitDialog extends JDialog {
 
     private void initData() {
         sbDbDri = new StringBuilder();
+        sbDaoDir = new StringBuilder();
+        sbEntityDir = new StringBuilder();
+        sbManageerDir = new StringBuilder();
     }
 
 
@@ -136,21 +146,26 @@ public class InitDialog extends JDialog {
             if (!hasSpecifiedSuDir(dataBasePDir, DIR_TEXT_DAO)) {
                 daoPDir = dataBasePDir.createSubdirectory(DIR_TEXT_DAO);
             }
+            sbDaoDir.append(sbDbDri).append(".").append(daoPDir.getName());
             if (!hasSpecifiedSuDir(dataBasePDir, DIR_TEXT_ENTITY)) {
                 entityPDir = dataBasePDir.createSubdirectory(DIR_TEXT_ENTITY);
             }
+            sbEntityDir.append(sbDbDri).append(".").append(entityPDir.getName());
             if (!hasSpecifiedSuDir(dataBasePDir, DIR_TEXT_MANAGEER)) {
                 manageerPDir = dataBasePDir.createSubdirectory(DIR_TEXT_MANAGEER);
             }
-
+            sbManageerDir.append(sbDbDri).append(".").append(manageerPDir.getName());
         }
     }
 
     private void completeInit() {
         createDataBaseDirAndSubDir();
+        createEntityFile();
+        createDaoFile();
         Constant.bInited = true;
         INSTANCE.setVisible(false);
     }
+
 
 
     private boolean hasSubDir(PsiDirectory rootDir) {
@@ -209,6 +224,14 @@ public class InitDialog extends JDialog {
     public void setDbDirPath() {
         dbDirPathTF.setText(sbDbDri.toString());
     }
+    private void createEntityFile() {
+    }
+    private void createDaoFile() {
+
+    }
+
+
+
 
 
 }

@@ -226,7 +226,6 @@ public class EntityProgress extends Processor {
      * @param visitor
      */
     protected void generateClass(PsiElementFactory factory, ClassEntity classEntity, PsiClass parentClass, IProcessor visitor) {
-
         onStartGenerateClass(factory, classEntity, parentClass, visitor);
         PsiClass generateClass = null;
         if (classEntity.isGenerate()) {
