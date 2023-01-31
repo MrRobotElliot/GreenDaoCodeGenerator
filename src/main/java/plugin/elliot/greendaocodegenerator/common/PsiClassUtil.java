@@ -275,4 +275,21 @@ public class PsiClassUtil {
         return exchangedType;
     }
 
+    public static PsiDirectory getSpecifiedSuDir(PsiDirectory rootDir, String subDirName) {
+        if (hasSubDir(rootDir)) {
+            for (int i = 0; i < rootDir.getSubdirectories().length; i++) {
+                if (rootDir.getSubdirectories()[i].getName().equals(subDirName)) {
+                    PsiDirectory srcDir = rootDir.getSubdirectories()[i];
+                    return srcDir;
+                }
+            }
+        }
+        return null;
+    }
+
+    public static boolean hasSubDir(PsiDirectory rootDir) {
+        return rootDir.getSubdirectories().length == 0 ? false : true;
+    }
+
+
 }

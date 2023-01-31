@@ -34,6 +34,8 @@ public class EntityProgress extends Processor {
             visitor.onEndProcess(classEntity, factory, cls);
         }
         formatJavCode(cls);
+        if (isRightDir(classEntity)) {
+        }
     }
 
     @Override
@@ -447,6 +449,11 @@ public class EntityProgress extends Processor {
             return;
         }
 
+    }
+
+    public boolean isRightDir(ClassEntity classEntity) {
+        logger.debug(classEntity.getPackName());
+        return false;
     }
 
 

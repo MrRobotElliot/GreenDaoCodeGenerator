@@ -17,7 +17,6 @@ public class Constant {
     public static String FIXME = "// FIXME check this code";
 
 
-
     public static final String privateStr = "   private String name;\n" + "\n" + "    public void setName(String name){\n" + "        this.name=name;\n" + "    }\n" + "\n" + "    public String getName(){\n" + "        return name;\n" + "    }";
     public static final String publicStr = "    public String name;";
 
@@ -37,5 +36,11 @@ public class Constant {
     public static final String noArgsConstructorAnnotation = "@NoArgsConstructor";
 
     public static final String loganSquareFullNameAnnotation = "@com.bluelinelabs.logansquare.annotation.JsonField(name=\"{filed}\")";
+
+    public static final String DIR_TEXT_DATABASE = "dataBase";
+    public static final String DIR_TEXT_DAO = "dao";
+    public static final String DIR_TEXT_ENTITY = "entity";
+    public static final String DIR_TEXT_MANAGEER = "manageer";
+
 
 }

@@ -44,7 +44,7 @@ public class DataWriter extends WriteCommandAction.Simple {
 
     public void execute(ClassEntity targetClass) {
         this.targetClass = targetClass;
-        ProgressManager.getInstance().run(new Task.Backgroundable(project, "GsonFormat") {
+        ProgressManager.getInstance().run(new Task.Backgroundable(project, "greenDaoFormat") {
 
             @Override
             public void run(ProgressIndicator progressIndicator) {
