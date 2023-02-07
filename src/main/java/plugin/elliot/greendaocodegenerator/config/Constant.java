@@ -3,6 +3,8 @@ package plugin.elliot.greendaocodegenerator.config;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 
+import javax.swing.*;
+
 /**
  * Created by Elliot on 15/5/31.
  */
@@ -12,7 +14,6 @@ public class Constant {
     public static Project sRootProject = null;
 
     public static Editor sEditor = null;
-    public static boolean bInited = false;
     public static final String DEFAULT_PREFIX = "_$";
     public static String FIXME = "// FIXME check this code";
 
@@ -37,10 +38,10 @@ public class Constant {
 
     public static final String loganSquareFullNameAnnotation = "@com.bluelinelabs.logansquare.annotation.JsonField(name=\"{filed}\")";
 
-    public static final String DIR_TEXT_DATABASE = "dataBase";
-    public static final String DIR_TEXT_DAO = "dao";
-    public static final String DIR_TEXT_ENTITY = "entity";
-    public static final String DIR_TEXT_MANAGEER = "manageer";
+    public static final String TEXT_DATABASE = "dataBase";
+    public static final String TEXT_DAO = "dao";
+    public static final String TEXT_ENTITY = "entity";
+    public static final String TEXT_MANAGEER = "manageer";
 
 
 }

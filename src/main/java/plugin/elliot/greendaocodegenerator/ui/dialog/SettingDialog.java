@@ -4,8 +4,6 @@ import com.intellij.ide.util.PackageChooserDialog;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.*;
 import com.intellij.psi.impl.file.PsiDirectoryFactory;
-import org.jetbrains.uast.values.UConstant;
-import org.jetbrains.uast.values.UConstantKt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import plugin.elliot.greendaocodegenerator.common.PsiClassUtil;
@@ -15,8 +13,8 @@ import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class InitDialog extends JDialog {
-    private static final Logger logger = LoggerFactory.getLogger(InitDialog.class);
+public class SettingDialog extends JDialog {
+    private static final Logger logger = LoggerFactory.getLogger(SettingDialog.class);
 
 
     private JPanel contentPane;
@@ -24,7 +22,6 @@ public class InitDialog extends JDialog {
     private JButton chooseDirBtn;
     private JButton okBtn;
     private JButton cancleBtn;
-    private JButton settingBtn;
 
 
     private String className;
@@ -45,23 +42,8 @@ public class InitDialog extends JDialog {
 
     private String sTableKey = null;
 
-    private static InitDialog INSTANCE = null;
 
-
-    public static InitDialog getInstance(String className, PsiClass cls, PsiFile file, Project project) {
-        if (null == INSTANCE) {
-            synchronized (InitDialog.class) {
-                if (null == INSTANCE) {
-                    INSTANCE = new InitDialog(className, cls, file, project);
-                }
-            }
-        }
-
-        return INSTANCE;
-    }
-
-
-    public InitDialog(Project project) {
+    public SettingDialog(Project project) {
         this.project = project;
         setContentPane(contentPane);
         getRootPane().setDefaultButton(okBtn);
@@ -70,7 +52,7 @@ public class InitDialog extends JDialog {
         initData();
     }
 
-    public InitDialog(String className, PsiClass cls, PsiFile file, Project project) {
+    public SettingDialog(String className, PsiClass cls, PsiFile file, Project project) {
         this.className = className;
         this.cls = cls;
         this.file = file;
@@ -90,10 +72,14 @@ public class InitDialog extends JDialog {
         chooseDirBtn.addActionListener(al -> {
             chooseDirOfDataBaseDir();
         });
+        cancleBtn.addActionListener(al -> {
+            onCancel();
+        });
         okBtn.addActionListener(al -> {
             completeInit();
         });
     }
+
 
     private void initData() {
         sbDbDri = new StringBuilder();
@@ -108,8 +94,8 @@ public class InitDialog extends JDialog {
         selector.show();
         if (selector.isOK()) {
             getDataBasePDir(selector.getSelectedPackage());
-            INSTANCE.setDbDirPath();
-            INSTANCE.showDlg(project);
+            setDbDirPath();
+            this.showOrHide(true);
         }
     }
 
@@ -139,9 +125,9 @@ public class InitDialog extends JDialog {
                 for (int i = 0; i < subDirsOfSelctPkg.size(); i++) {
                     preSubDir = PsiClassUtil.getSpecifiedSuDir(preSubDir, subDirsOfSelctPkg.get(i));
                 }
-                if (!hasSpecifiedSuDir(preSubDir, Constant.DIR_TEXT_DATABASE) && !preSubDir.getName().equals(Constant.DIR_TEXT_DATABASE)) {
-                    dataBasePDir = preSubDir.createSubdirectory(Constant.DIR_TEXT_DATABASE);
-                } else if (preSubDir.getName().equals(Constant.DIR_TEXT_DATABASE)) {
+                if (!hasSubDir(preSubDir, Constant.TEXT_DATABASE) && !preSubDir.getName().equals(Constant.TEXT_DATABASE)) {
+                    dataBasePDir = preSubDir.createSubdirectory(Constant.TEXT_DATABASE);
+                } else if (preSubDir.getName().equals(Constant.TEXT_DATABASE)) {
                     dataBasePDir = preSubDir;
                 }
                 if (dataBasePDir != null) {
@@ -154,51 +140,51 @@ public class InitDialog extends JDialog {
 
     private void createDataBaseDirAndSubDir() {
         if (dataBasePDir != null) {
-            if (!hasSpecifiedSuDir(dataBasePDir, Constant.DIR_TEXT_DAO)) {
-                daoPDir = dataBasePDir.createSubdirectory(Constant.DIR_TEXT_DAO);
+            if (!hasSubDir(dataBasePDir, Constant.TEXT_DAO)) {
+                daoPDir = dataBasePDir.createSubdirectory(Constant.TEXT_DAO);
             }
             sbDaoDir.append(sbDbDri).append(".").append(daoPDir.getName());
-            if (!hasSpecifiedSuDir(dataBasePDir, Constant.DIR_TEXT_ENTITY)) {
-                entityPDir = dataBasePDir.createSubdirectory(Constant.DIR_TEXT_ENTITY);
+            if (!hasSubDir(dataBasePDir, Constant.TEXT_ENTITY)) {
+                entityPDir = dataBasePDir.createSubdirectory(Constant.TEXT_ENTITY);
             }
             sbEntityDir.append(sbDbDri).append(".").append(entityPDir.getName());
-            if (!hasSpecifiedSuDir(dataBasePDir, Constant.DIR_TEXT_MANAGEER)) {
-                manageerPDir = dataBasePDir.createSubdirectory(Constant.DIR_TEXT_MANAGEER);
+            if (!hasSubDir(dataBasePDir, Constant.TEXT_MANAGEER)) {
+                manageerPDir = dataBasePDir.createSubdirectory(Constant.TEXT_MANAGEER);
             }
             sbManageerDir.append(sbDbDri).append(".").append(manageerPDir.getName());
         }
     }
 
+    private void onCancel() {
+        dispose();
+    }
+
     private void completeInit() {
         createDataBaseDirAndSubDir();
-        createEntityFile();
-        createDaoFile();
-        Constant.bInited = true;
-        INSTANCE.hideDlg();
-        JsonDialog.showDlg(className, cls, file, project);
+        showOrHide(false);
+        dispose();
+
     }
 
 
-    private boolean hasSpecifiedSuDir(PsiDirectory rootDir, String subDirName) {
+    private boolean hasSubDir(PsiDirectory rootDir, String subDirName) {
         boolean isCreated = false;
-        if (PsiClassUtil.hasSubDir(rootDir)) {
-            for (int i = 0; i < rootDir.getSubdirectories().length; i++) {
-                if (rootDir.getSubdirectories()[i].getName().equals(subDirName)) {
-                    isCreated = true;
-                    switch (subDirName) {
-                        case Constant.DIR_TEXT_DATABASE:
-                            dataBasePDir = rootDir.getSubdirectories()[i];
-                            break;
-                        case Constant.DIR_TEXT_DAO:
-                            daoPDir = rootDir.getSubdirectories()[i];
-                            break;
-                        case Constant.DIR_TEXT_ENTITY:
-                            entityPDir = rootDir.getSubdirectories()[i];
-                            break;
-                        case Constant.DIR_TEXT_MANAGEER:
-                            manageerPDir = rootDir.getSubdirectories()[i];
-                            break;
-                    }
+        for (int i = 0; i < rootDir.getSubdirectories().length; i++) {
+            if (rootDir.getSubdirectories()[i].getName().equals(subDirName)) {
+                isCreated = true;
+                switch (subDirName) {
+                    case Constant.TEXT_DATABASE:
+                        dataBasePDir = rootDir.getSubdirectories()[i];
+                        break;
+                    case Constant.TEXT_DAO:
+                        daoPDir = rootDir.getSubdirectories()[i];
+                        break;
+                    case Constant.TEXT_ENTITY:
+                        entityPDir = rootDir.getSubdirectories()[i];
+                        break;
+                    case Constant.TEXT_MANAGEER:
+                        manageerPDir = rootDir.getSubdirectories()[i];
+                        break;
                 }
             }
         }
@@ -207,37 +193,19 @@ public class InitDialog extends JDialog {
 
 
     public static void showDlg(String className, PsiClass cls, PsiFile file, Project project) {
-        if (INSTANCE == null) {
-            INSTANCE = getInstance(className, cls, file, project);
-            INSTANCE.setSize(1080, 512);
-            INSTANCE.setLocationRelativeTo(null);
-        } else {
-            INSTANCE.setVisible(true);
-        }
+        SettingDialog settingDialog = new SettingDialog(className, cls, file, project);
+        settingDialog.setSize(1080, 512);
+        settingDialog.setLocationRelativeTo(null);
+        settingDialog.showOrHide(true);
     }
 
-    public static void showDlg(Project project) {
-        if (INSTANCE != null) {
-            INSTANCE.setVisible(true);
-        }
+    public void showOrHide(boolean isShow) {
+        this.setVisible(isShow);
     }
 
-    public static void hideDlg() {
-        if (INSTANCE == null) {
-            INSTANCE.setVisible(false);
-        }
-    }
 
     public void setDbDirPath() {
         dbDirPathTF.setText(sbDbDri.toString());
-    }
-
-    private void createEntityFile() {
-
-    }
-
-    private void createDaoFile() {
-
     }
 
 

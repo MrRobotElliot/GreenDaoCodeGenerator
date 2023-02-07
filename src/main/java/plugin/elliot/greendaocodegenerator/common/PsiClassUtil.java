@@ -200,11 +200,11 @@ public class PsiClassUtil {
     /**
      * 添加包
      *
-     * @param elementFactory
+     * @param factory
      * @param cls
      * @param fullyQualifiedName
      */
-    public static void addImport(PsiElementFactory elementFactory, PsiClass cls, String fullyQualifiedName) {
+    public static void addImport(PsiElementFactory factory, PsiClass cls, String fullyQualifiedName) {
         final PsiFile file = cls.getContainingFile();
         if (!(file instanceof PsiJavaFile)) {
             return;
@@ -215,7 +215,6 @@ public class PsiClassUtil {
         if (importList == null) {
             return;
         }
-
         // Check if already imported
         for (PsiImportStatementBase is : importList.getAllImportStatements()) {
             String impQualifiedName = is.getImportReference().getQualifiedName();
@@ -225,7 +224,7 @@ public class PsiClassUtil {
 
         }
         // Not imported yet so add it
-        importList.add(elementFactory.createImportStatementOnDemand(fullyQualifiedName));
+        importList.add(factory.createImportStatementOnDemand(fullyQualifiedName));
     }
 
 
@@ -276,19 +275,13 @@ public class PsiClassUtil {
     }
 
     public static PsiDirectory getSpecifiedSuDir(PsiDirectory rootDir, String subDirName) {
-        if (hasSubDir(rootDir)) {
-            for (int i = 0; i < rootDir.getSubdirectories().length; i++) {
-                if (rootDir.getSubdirectories()[i].getName().equals(subDirName)) {
-                    PsiDirectory srcDir = rootDir.getSubdirectories()[i];
-                    return srcDir;
-                }
+        for (int i = 0; i < rootDir.getSubdirectories().length; i++) {
+            if (rootDir.getSubdirectories()[i].getName().equals(subDirName)) {
+                PsiDirectory srcDir = rootDir.getSubdirectories()[i];
+                return srcDir;
             }
         }
         return null;
-    }
-
-    public static boolean hasSubDir(PsiDirectory rootDir) {
-        return rootDir.getSubdirectories().length == 0 ? false : true;
     }
 
 

@@ -139,6 +139,7 @@ public class DaoProcessor extends Processor {
     }
 
     private void appendConstruterMethodName(PsiClass cls, StringBuilder constructorSb) {
+        constructorSb.append("public ");
         if (cls.getName().contains("Dao")) {
             constructorSb.append(cls.getName() + "(");
         } else {

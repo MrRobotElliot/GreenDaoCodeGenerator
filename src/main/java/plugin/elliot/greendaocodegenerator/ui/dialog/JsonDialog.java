@@ -35,12 +35,10 @@ public class JsonDialog extends JDialog implements ConvertBridge.Operator {
     private JTextField generateClassTF;
     private JComboBox instanceTypeCB;
     private JTextArea jsonTA;
-    private JTextArea entityTA;
     private JButton formatBtn;
     private JButton settingBtn;
     private JButton okBtn;
     private JButton cancelBtn;
-    private JButton previewBtn;
     private JPanel generateClassP;
     private JLabel errorLB;
 
@@ -58,6 +56,8 @@ public class JsonDialog extends JDialog implements ConvertBridge.Operator {
     private String currentPkg = null;
     private String errorInfo = null;
 
+    private String curType = "";
+
 
     public JsonDialog(String className, PsiClass cls, PsiFile file, Project project) {
         this.className = className;
@@ -69,14 +69,13 @@ public class JsonDialog extends JDialog implements ConvertBridge.Operator {
         getRootPane().setDefaultButton(okBtn);
         initView();
         initListener();
+        initData();
     }
 
     private void initView() {
         Border borders = BorderFactory.createLineBorder(Color.GRAY);
         jsonTA.setBorder(borders);
-        entityTA.setBorder(borders);
         //获取当前Class
-
         currentPkg = ((PsiJavaFileImpl) file).getPackageName() + "." + file.getName().split("\\.")[0];
         generateClassTF.setText(currentPkg);
     }
@@ -86,13 +85,6 @@ public class JsonDialog extends JDialog implements ConvertBridge.Operator {
             @Override
             public void actionPerformed(ActionEvent e) {
                 formatJson();
-            }
-        });
-        previewBtn.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                outPutEntity(jsonTA.getText());
-                entityTA.setText(entityBody);
             }
         });
         okBtn.addActionListener(new ActionListener() {
@@ -106,21 +98,32 @@ public class JsonDialog extends JDialog implements ConvertBridge.Operator {
                 onCancel();
             }
         });
-
-        // call onCancel() when cross is clicked
-        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+        settingBtn.addActionListener(al -> {
+            this.hide();
+            DialogUtil.ShowSettingDlg(className, cls, file, project);
+        });
+//        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
                 onCancel();
             }
         });
 
-        // call onCancel() on ESCAPE
         contentPane.registerKeyboardAction(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 onCancel();
             }
         }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+    }
+
+    private void initData() {
+        MoudelLibrary[] values = MoudelLibrary.values();
+        for (MoudelLibrary it : values) {
+            if (file.getName().contains(it.getType())) {
+                DialogUtil.curFileType = it.getType();
+                instanceTypeCB.setSelectedIndex(it.getIndex());
+            }
+        }
     }
 
     private void onOK() {
@@ -174,6 +177,7 @@ public class JsonDialog extends JDialog implements ConvertBridge.Operator {
         dialog.setSize(1080, 512);
         dialog.setLocationRelativeTo(null);
         dialog.setVisible(true);
+        DialogUtil.curFileDialog = dialog;
     }
 
     private void formatJson() {
@@ -181,7 +185,7 @@ public class JsonDialog extends JDialog implements ConvertBridge.Operator {
         json = json.trim();
         try {
             if (json.startsWith("{")) {
-                plugin.elliot.greendaocodegenerator.tools.JSONObject jsonObject = new plugin.elliot.greendaocodegenerator.tools.JSONObject(json);
+                JSONObject jsonObject = new JSONObject(json);
                 String formatJson = jsonObject.toString(4);
                 jsonTA.setText(formatJson);
             } else if (json.startsWith("[")) {
@@ -196,7 +200,7 @@ public class JsonDialog extends JDialog implements ConvertBridge.Operator {
                 jsonTA.setText(formatJson);
             } catch (Exception exception) {
                 exception.printStackTrace();
-                NotificationCenter.sendNotificationForProject("json格式不正确，格式需要标准的json或者json5", NotificationType.ERROR,project);
+                NotificationCenter.sendNotificationForProject("json格式不正确，格式需要标准的json或者json5", NotificationType.ERROR, project);
                 return;
             }
         }

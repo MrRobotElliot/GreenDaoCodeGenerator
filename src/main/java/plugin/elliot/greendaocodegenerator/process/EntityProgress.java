@@ -274,9 +274,10 @@ public class EntityProgress extends Processor {
      * @param classEntity
      */
     protected void generateConstructor(ClassEntity classEntity, PsiElementFactory factory, PsiClass cls) {
-        cls.add(factory.createConstructor(cls.getName(), cls));
+        cls.add(factory.createConstructor("public " + cls.getName(), cls));
         String annGenerated = "    @Generated\n";
         StringBuilder constructorSb = new StringBuilder();
+        constructorSb.append("public ");
         if (cls.getName().contains("Entity")) {
             constructorSb.append(cls.getName() + "(");
         } else {
