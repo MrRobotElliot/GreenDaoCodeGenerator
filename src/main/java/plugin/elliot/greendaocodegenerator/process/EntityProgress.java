@@ -2,12 +2,7 @@ package plugin.elliot.greendaocodegenerator.process;
 
 import com.intellij.psi.*;
 import com.intellij.psi.javadoc.PsiDocComment;
-import com.intellij.psi.search.GlobalSearchScope;
-import com.intellij.psi.search.PsiShortNamesCache;
-import com.intellij.util.IncorrectOperationException;
-import com.thoughtworks.qdox.model.JavaClass;
 import org.apache.http.util.TextUtils;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import plugin.elliot.greendaocodegenerator.common.*;
@@ -15,14 +10,13 @@ import plugin.elliot.greendaocodegenerator.config.Config;
 import plugin.elliot.greendaocodegenerator.config.Constant;
 import plugin.elliot.greendaocodegenerator.entity.ClassEntity;
 import plugin.elliot.greendaocodegenerator.entity.FieldEntity;
-import plugin.elliot.greendaocodegenerator.entity.MoudelLibrary;
 
 public class EntityProgress extends Processor {
     private static final Logger logger = LoggerFactory.getLogger(EntityProgress.class);
 
     @Override
     public void onStarProcess(ClassEntity classEntity, PsiElementFactory factory, PsiClass cls, IProcessor visitor) {
-        guidePacket(factory, cls);
+//        addImport(factory, cls);
         injectEntityAnotaion(factory, cls);
 //        clearHadData(factory, cls);
     }
@@ -57,7 +51,7 @@ public class EntityProgress extends Processor {
             if (Config.getInstant().isUseLombok()) {
                 PsiDocComment docComment = generateClass.getDocComment();
                 if (docComment == null && Config.getInstant().isUseComment()) {
-                    JavaDocUtils.addClassComment(generateClass, classEntity, factory);
+                    JavaDocUtil.addClassComment(generateClass, classEntity, factory);
                 }
 
             }
@@ -75,10 +69,7 @@ public class EntityProgress extends Processor {
     /**
      * 导包
      */
-    private void guidePacket(PsiElementFactory factory, PsiClass generateClass) {
-        if (factory == null || generateClass == null) {
-            return;
-        }
+    private void addImport(PsiElementFactory factory, PsiClass generateClass) {
         PsiClassUtil.addImport(factory, generateClass, "org.greenrobot.greendao.annotation.Property");
     }
 
@@ -199,7 +190,7 @@ public class EntityProgress extends Processor {
 //                    factory.createAnnotationFromText(generateAnnotationText(classEntity, fieldEntity, null), cls);
                     PsiField field = factory.createFieldFromText(generateFieldText(classEntity, fieldEntity, null), cls);
                     if (Config.getInstant().isUseComment()) {
-                        JavaDocUtils.addFieldComment(field, fieldEntity, factory);
+                        JavaDocUtil.addFieldComment(field, fieldEntity, factory);
                     }
                     cls.add(field);
                 }

@@ -8,14 +8,13 @@ public enum MoudelLibrary {
     /**
      * 转换类库
      */
-    ENTITY(0, "Entity"), DAO(1, "Dao"), OTHER(2, "Other");
+    ENTITY(0, "Entity"), DAO(1, "Dao"), DAO_MASTER(4, "DaoMaster"), OTHER(3, "Other");
 
     public static MoudelLibrary from() {
         return from(Constant.sInstanceType);
     }
 
     private static MoudelLibrary from(String instanceType) {
-        MoudelLibrary[] values = MoudelLibrary.values();
         for (MoudelLibrary item : MoudelLibrary.values()) {
             if (item.getType().equals(instanceType)) {
                 return item;

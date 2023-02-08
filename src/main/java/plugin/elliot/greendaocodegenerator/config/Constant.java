@@ -38,10 +38,6 @@ public class Constant {
 
     public static final String loganSquareFullNameAnnotation = "@com.bluelinelabs.logansquare.annotation.JsonField(name=\"{filed}\")";
 
-    public static final String TEXT_DATABASE = "dataBase";
-    public static final String TEXT_DAO = "dao";
-    public static final String TEXT_ENTITY = "entity";
-    public static final String TEXT_MANAGEER = "manageer";
 
 
 }

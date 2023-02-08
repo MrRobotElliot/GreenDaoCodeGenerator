@@ -17,7 +17,7 @@ public class DaoProcessor extends Processor {
 
     @Override
     void onStarProcess(ClassEntity classEntity, PsiElementFactory factory, PsiClass cls, IProcessor visitor) {
-        addImport(factory, cls);
+//        addImport(factory, cls);
         String name = cls.getName();
         entityName = name.replaceAll("Dao", "") + "Entity";
     }
@@ -69,7 +69,6 @@ public class DaoProcessor extends Processor {
      * @param cls
      */
     private void createExtendClass(PsiElementFactory factory, PsiClass cls) {
-        String name = cls.getName();
         final String extendsType = "AbstractDao<" + entityName + ", Long>";
         final PsiClassType[] extendsListTypes = cls.getExtendsListTypes();
         for (PsiClassType extendsListType : extendsListTypes) {

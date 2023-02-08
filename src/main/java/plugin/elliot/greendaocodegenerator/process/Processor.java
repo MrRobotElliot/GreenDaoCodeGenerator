@@ -3,15 +3,8 @@ package plugin.elliot.greendaocodegenerator.process;
 
 import com.intellij.psi.*;
 import com.intellij.psi.codeStyle.JavaCodeStyleManager;
-import com.intellij.psi.javadoc.PsiDocComment;
-import org.apache.http.util.TextUtils;
-import org.jetbrains.annotations.NotNull;
-import plugin.elliot.greendaocodegenerator.common.*;
-import plugin.elliot.greendaocodegenerator.config.Config;
-import plugin.elliot.greendaocodegenerator.config.Constant;
 import plugin.elliot.greendaocodegenerator.entity.ClassEntity;
 import plugin.elliot.greendaocodegenerator.entity.MoudelLibrary;
-import plugin.elliot.greendaocodegenerator.entity.FieldEntity;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,6 +21,7 @@ public abstract class Processor {
     static {
         sProcessorMap.put(MoudelLibrary.ENTITY, new EntityProgress());
         sProcessorMap.put(MoudelLibrary.DAO, new DaoProcessor());
+        sProcessorMap.put(MoudelLibrary.DAO_MASTER, new DaoMasterProcessor());
         sProcessorMap.put(MoudelLibrary.OTHER, new OtherProcessor());
     }
 

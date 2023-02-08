@@ -13,7 +13,7 @@ import plugin.elliot.greendaocodegenerator.entity.FieldEntity;
  * @description javaDoc注释工具
  * @date 2020年07月03日 19:10:14
  */
-public class JavaDocUtils {
+public class JavaDocUtil {
 
     /**
      * 增加类上注释

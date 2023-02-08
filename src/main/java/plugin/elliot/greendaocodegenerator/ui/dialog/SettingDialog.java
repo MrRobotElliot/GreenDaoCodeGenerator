@@ -1,13 +1,18 @@
 package plugin.elliot.greendaocodegenerator.ui.dialog;
 
+import com.intellij.ide.fileTemplates.FileTemplate;
+import com.intellij.ide.fileTemplates.FileTemplateManager;
+import com.intellij.ide.highlighter.JavaFileType;
 import com.intellij.ide.util.PackageChooserDialog;
+import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.*;
 import com.intellij.psi.impl.file.PsiDirectoryFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import plugin.elliot.greendaocodegenerator.common.PsiClassUtil;
-import plugin.elliot.greendaocodegenerator.config.Constant;
+import plugin.elliot.greendaocodegenerator.common.PsiFileFactoryUtil;
+import plugin.elliot.greendaocodegenerator.enums.DirEnum;
 
 import javax.swing.*;
 import java.util.ArrayList;
@@ -33,7 +38,7 @@ public class SettingDialog extends JDialog {
     private PsiDirectory daoPDir = null;
     private PsiDirectory entityPDir = null;
     private PsiDirectory manageerPDir = null;
-
+    private PsiPackage curPkg = null;
     private StringBuilder sbDbDri = null;
     private StringBuilder sbDaoDir = null;
 
@@ -76,7 +81,7 @@ public class SettingDialog extends JDialog {
             onCancel();
         });
         okBtn.addActionListener(al -> {
-            completeInit();
+            completeSet();
         });
     }
 
@@ -93,7 +98,8 @@ public class SettingDialog extends JDialog {
         PackageChooserDialog selector = new PackageChooserDialog("选择包路径", project);
         selector.show();
         if (selector.isOK()) {
-            getDataBasePDir(selector.getSelectedPackage());
+            curPkg = selector.getSelectedPackage();
+            getDataBasePDir(curPkg);
             setDbDirPath();
             this.showOrHide(true);
         }
@@ -125,9 +131,9 @@ public class SettingDialog extends JDialog {
                 for (int i = 0; i < subDirsOfSelctPkg.size(); i++) {
                     preSubDir = PsiClassUtil.getSpecifiedSuDir(preSubDir, subDirsOfSelctPkg.get(i));
                 }
-                if (!hasSubDir(preSubDir, Constant.TEXT_DATABASE) && !preSubDir.getName().equals(Constant.TEXT_DATABASE)) {
-                    dataBasePDir = preSubDir.createSubdirectory(Constant.TEXT_DATABASE);
-                } else if (preSubDir.getName().equals(Constant.TEXT_DATABASE)) {
+                if (!hasSubDir(preSubDir, DirEnum.DATABASE.getType()) && !preSubDir.getName().equals(DirEnum.DATABASE.getType())) {
+                    dataBasePDir = preSubDir.createSubdirectory(DirEnum.DATABASE.getType());
+                } else if (preSubDir.getName().equals(DirEnum.DATABASE.getType())) {
                     dataBasePDir = preSubDir;
                 }
                 if (dataBasePDir != null) {
@@ -140,16 +146,16 @@ public class SettingDialog extends JDialog {
 
     private void createDataBaseDirAndSubDir() {
         if (dataBasePDir != null) {
-            if (!hasSubDir(dataBasePDir, Constant.TEXT_DAO)) {
-                daoPDir = dataBasePDir.createSubdirectory(Constant.TEXT_DAO);
+            if (!hasSubDir(dataBasePDir, DirEnum.DAO.getType())) {
+                daoPDir = dataBasePDir.createSubdirectory(DirEnum.DAO.getType());
             }
             sbDaoDir.append(sbDbDri).append(".").append(daoPDir.getName());
-            if (!hasSubDir(dataBasePDir, Constant.TEXT_ENTITY)) {
-                entityPDir = dataBasePDir.createSubdirectory(Constant.TEXT_ENTITY);
+            if (!hasSubDir(dataBasePDir, DirEnum.ENTITY.getType())) {
+                entityPDir = dataBasePDir.createSubdirectory(DirEnum.ENTITY.getType());
             }
             sbEntityDir.append(sbDbDri).append(".").append(entityPDir.getName());
-            if (!hasSubDir(dataBasePDir, Constant.TEXT_MANAGEER)) {
-                manageerPDir = dataBasePDir.createSubdirectory(Constant.TEXT_MANAGEER);
+            if (!hasSubDir(dataBasePDir, DirEnum.MANAGER.getType())) {
+                manageerPDir = dataBasePDir.createSubdirectory(DirEnum.MANAGER.getType());
             }
             sbManageerDir.append(sbDbDri).append(".").append(manageerPDir.getName());
         }
@@ -159,11 +165,11 @@ public class SettingDialog extends JDialog {
         dispose();
     }
 
-    private void completeInit() {
+    private void completeSet() {
         createDataBaseDirAndSubDir();
         showOrHide(false);
+        createDaoManager();
         dispose();
-
     }
 
 
@@ -173,16 +179,16 @@ public class SettingDialog extends JDialog {
             if (rootDir.getSubdirectories()[i].getName().equals(subDirName)) {
                 isCreated = true;
                 switch (subDirName) {
-                    case Constant.TEXT_DATABASE:
+                    case "dataBase":
                         dataBasePDir = rootDir.getSubdirectories()[i];
                         break;
-                    case Constant.TEXT_DAO:
+                    case "dao":
                         daoPDir = rootDir.getSubdirectories()[i];
                         break;
-                    case Constant.TEXT_ENTITY:
+                    case "entity":
                         entityPDir = rootDir.getSubdirectories()[i];
                         break;
-                    case Constant.TEXT_MANAGEER:
+                    case "manager":
                         manageerPDir = rootDir.getSubdirectories()[i];
                         break;
                 }
@@ -199,14 +205,24 @@ public class SettingDialog extends JDialog {
         settingDialog.showOrHide(true);
     }
 
-    public void showOrHide(boolean isShow) {
+    private void showOrHide(boolean isShow) {
         this.setVisible(isShow);
     }
 
 
-    public void setDbDirPath() {
+    private void setDbDirPath() {
         dbDirPathTF.setText(sbDbDri.toString());
     }
 
+    private void createDaoManager() {
+        String className = "DaoManager";
+        StringBuilder classSampleContentSb = new StringBuilder();
+        classSampleContentSb.append("package ").append(curPkg.getQualifiedName() + "." + manageerPDir.getName());
+        classSampleContentSb.append("\n\n");
+        classSampleContentSb.append("public class " + className + " {\n\n}");
+        final PsiFileFactory factory = PsiFileFactory.getInstance(project);
+        PsiJavaFile file = (PsiJavaFile) factory.createFileFromText(className + ".java", JavaFileType.INSTANCE, classSampleContentSb.toString());
+        manageerPDir.add(file);
+    }
 
 }
