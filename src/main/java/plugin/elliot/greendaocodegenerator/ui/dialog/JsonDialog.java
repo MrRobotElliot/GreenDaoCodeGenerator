@@ -50,19 +50,16 @@ public class JsonDialog extends JDialog implements ConvertBridge.Operator {
 
     private PsiClass cls;
     private PsiFile file;
-    private Project project;
     private String className = "";
 
     private String currentPkg = null;
     private String errorInfo = null;
 
 
-
-    public JsonDialog(String className, PsiClass cls, PsiFile file, Project project) {
+    public JsonDialog(String className, PsiClass cls, PsiFile file) {
         this.className = className;
         this.cls = cls;
         this.file = file;
-        this.project = project;
         setContentPane(contentPane);
         setModal(true);
         getRootPane().setDefaultButton(okBtn);
@@ -106,7 +103,7 @@ public class JsonDialog extends JDialog implements ConvertBridge.Operator {
         });
         settingBtn.addActionListener(al -> {
             this.hide();
-            DialogUtil.ShowSettingDlg(className, cls, file, project);
+            DialogUtil.ShowSettingDlg(className, cls, file);
         });
 
         contentPane.registerKeyboardAction(new ActionListener() {
@@ -136,7 +133,7 @@ public class JsonDialog extends JDialog implements ConvertBridge.Operator {
         //生成类名
         String generateClassName = getGeneratePkgPath(generateClassTF.getText());
         if (TextUtils.isEmpty(generateClassName) || generateClassName.endsWith(".")) {
-            Toast.make(project, generateClassP, MessageType.ERROR, "the path is not allowed");
+            Toast.make(Constant.sRootProject, generateClassP, MessageType.ERROR, "the path is not allowed");
             return;
         }
         PsiClass generateClass = null;
@@ -146,7 +143,7 @@ public class JsonDialog extends JDialog implements ConvertBridge.Operator {
             generateClass = cls;
         }
         //执行转换
-        new ConvertBridge(this, jsonSTR, jsonComment, file, project, generateClass, cls, generateClassName).run();
+        new ConvertBridge(this, jsonSTR, jsonComment, file, Constant.sRootProject, generateClass, cls, generateClassName).run();
         setVisible(false);
     }
 
@@ -175,8 +172,8 @@ public class JsonDialog extends JDialog implements ConvertBridge.Operator {
         dispose();
     }
 
-    public static void showDlg(String className, PsiClass cls, PsiFile file, Project project) {
-        JsonDialog dialog = new JsonDialog(className, cls, file, project);
+    public static void showDlg(String className, PsiClass cls, PsiFile file) {
+        JsonDialog dialog = new JsonDialog(className, cls, file);
         dialog.setSize(1080, 512);
         dialog.setLocationRelativeTo(null);
         dialog.setVisible(true);
@@ -203,7 +200,7 @@ public class JsonDialog extends JDialog implements ConvertBridge.Operator {
                 jsonTA.setText(formatJson);
             } catch (Exception exception) {
                 exception.printStackTrace();
-                NotificationCenter.sendNotificationForProject("json格式不正确，格式需要标准的json或者json5", NotificationType.ERROR, project);
+                NotificationCenter.sendNotificationForProject("json格式不正确，格式需要标准的json或者json5", NotificationType.ERROR, Constant.sRootProject);
                 return;
             }
         }
@@ -216,17 +213,17 @@ public class JsonDialog extends JDialog implements ConvertBridge.Operator {
             case DATA_ERROR:
                 errorLB.setText("data err !!");
                 if (Config.getInstant().isToastError()) {
-                    Toast.make(project, errorLB, MessageType.ERROR, "click to see details");
+                    Toast.make(Constant.sRootProject, errorLB, MessageType.ERROR, "click to see details");
                 }
                 break;
             case PARSE_ERROR:
                 errorLB.setText("parse err !!");
                 if (Config.getInstant().isToastError()) {
-                    Toast.make(project, errorLB, MessageType.ERROR, "click to see details");
+                    Toast.make(Constant.sRootProject, errorLB, MessageType.ERROR, "click to see details");
                 }
                 break;
             case PATH_ERROR:
-                Toast.make(project, generateClassP, MessageType.ERROR, "the path is not allowed");
+                Toast.make(Constant.sRootProject, generateClassP, MessageType.ERROR, "the path is not allowed");
                 break;
             default:
                 break;

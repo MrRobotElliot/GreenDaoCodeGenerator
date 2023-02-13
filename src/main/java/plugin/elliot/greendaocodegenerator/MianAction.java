@@ -45,7 +45,7 @@ public class MianAction extends BaseGenerateAction {
         if (psiFile.getFileType().getName().equals("JAVA")) {
             String fileFullName = psiFile.getName();
             String fileName = fileFullName.substring(0, fileFullName.lastIndexOf("."));
-            JsonDialog.showDlg(fileName, psiClass, psiFile, project);
+            JsonDialog.showDlg(fileName, psiClass, psiFile);
         } else {
             MessageDialog.showDlg("当前文件 " + psiFile.getName() + " 不是Java文件！");
         }

@@ -14,7 +14,7 @@ public class DialogUtil {
     public static JDialog curFileDialog = null;
     public static String curFileType = "";
 
-    public static void ShowSettingDlg(String className, PsiClass cls, PsiFile file, Project project) {
-        SettingDialog.showDlg(className, cls, file, project);
+    public static void ShowSettingDlg(String className, PsiClass cls, PsiFile file) {
+        SettingDialog.showDlg(className, cls, file);
     }
 }

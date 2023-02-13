@@ -1,17 +1,16 @@
 package plugin.elliot.greendaocodegenerator.ui.dialog;
 
-import com.intellij.ide.fileTemplates.FileTemplate;
-import com.intellij.ide.fileTemplates.FileTemplateManager;
 import com.intellij.ide.highlighter.JavaFileType;
 import com.intellij.ide.util.PackageChooserDialog;
-import com.intellij.openapi.fileTypes.FileType;
-import com.intellij.openapi.project.Project;
+import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.psi.*;
 import com.intellij.psi.impl.file.PsiDirectoryFactory;
+import org.apache.http.util.TextUtils;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import plugin.elliot.greendaocodegenerator.common.PsiClassUtil;
-import plugin.elliot.greendaocodegenerator.common.PsiFileFactoryUtil;
+import plugin.elliot.greendaocodegenerator.config.Constant;
 import plugin.elliot.greendaocodegenerator.enums.DirEnum;
 
 import javax.swing.*;
@@ -32,7 +31,6 @@ public class SettingDialog extends JDialog {
     private String className;
     private PsiClass cls;
     private PsiFile file;
-    private Project project;
 
     private PsiDirectory dataBasePDir = null;
     private PsiDirectory daoPDir = null;
@@ -48,20 +46,10 @@ public class SettingDialog extends JDialog {
     private String sTableKey = null;
 
 
-    public SettingDialog(Project project) {
-        this.project = project;
-        setContentPane(contentPane);
-        getRootPane().setDefaultButton(okBtn);
-        initView();
-        initLinstener();
-        initData();
-    }
-
-    public SettingDialog(String className, PsiClass cls, PsiFile file, Project project) {
+    public SettingDialog(String className, PsiClass cls, PsiFile file) {
         this.className = className;
         this.cls = cls;
         this.file = file;
-        this.project = project;
         setContentPane(contentPane);
         getRootPane().setDefaultButton(okBtn);
         initView();
@@ -95,7 +83,7 @@ public class SettingDialog extends JDialog {
 
 
     private void chooseDirOfDataBaseDir() {
-        PackageChooserDialog selector = new PackageChooserDialog("选择包路径", project);
+        PackageChooserDialog selector = new PackageChooserDialog("选择包路径", Constant.sRootProject);
         selector.show();
         if (selector.isOK()) {
             curPkg = selector.getSelectedPackage();
@@ -109,6 +97,7 @@ public class SettingDialog extends JDialog {
         if (selectedPackage != null) {
             //创建目录
             String selectPkg = selectedPackage.getQualifiedName();
+            Constant.pkgdataBaseDir = selectPkg;
             sbDbDri.append(selectPkg);
             List<String> subDirsOfSelctPkg = new ArrayList<>();
             int preIndexOfDot = -1;
@@ -119,7 +108,7 @@ public class SettingDialog extends JDialog {
                 }
             }
             subDirsOfSelctPkg.add(selectPkg.substring(preIndexOfDot + 1));
-            PsiDirectory baseDir = PsiDirectoryFactory.getInstance(project).createDirectory(project.getBaseDir());
+            PsiDirectory baseDir = PsiDirectoryFactory.getInstance(Constant.sRootProject).createDirectory(Constant.sRootProject.getBaseDir());
             //安装 Android 的目录
 //            PsiDirectory appDir = getSpecifiedSuDir(baseDir, "app");
 //            PsiDirectory srcDir = getSpecifiedSuDir(appDir, "src");
@@ -133,6 +122,7 @@ public class SettingDialog extends JDialog {
                 }
                 if (!hasSubDir(preSubDir, DirEnum.DATABASE.getType()) && !preSubDir.getName().equals(DirEnum.DATABASE.getType())) {
                     dataBasePDir = preSubDir.createSubdirectory(DirEnum.DATABASE.getType());
+                    Constant.pkgdataBaseDir += "." + dataBasePDir.getName();
                 } else if (preSubDir.getName().equals(DirEnum.DATABASE.getType())) {
                     dataBasePDir = preSubDir;
                 }
@@ -169,6 +159,9 @@ public class SettingDialog extends JDialog {
         createDataBaseDirAndSubDir();
         showOrHide(false);
         createDaoManager();
+        createDaoSession();
+        createDaoUtilsStore();
+        createMigrationHelper();
         dispose();
     }
 
@@ -198,8 +191,8 @@ public class SettingDialog extends JDialog {
     }
 
 
-    public static void showDlg(String className, PsiClass cls, PsiFile file, Project project) {
-        SettingDialog settingDialog = new SettingDialog(className, cls, file, project);
+    public static void showDlg(String className, PsiClass cls, PsiFile file) {
+        SettingDialog settingDialog = new SettingDialog(className, cls, file);
         settingDialog.setSize(1080, 512);
         settingDialog.setLocationRelativeTo(null);
         settingDialog.showOrHide(true);
@@ -214,15 +207,76 @@ public class SettingDialog extends JDialog {
         dbDirPathTF.setText(sbDbDri.toString());
     }
 
-    private void createDaoManager() {
-        String className = "DaoManager";
-        StringBuilder classSampleContentSb = new StringBuilder();
-        classSampleContentSb.append("package ").append(curPkg.getQualifiedName() + "." + manageerPDir.getName());
-        classSampleContentSb.append("\n\n");
-        classSampleContentSb.append("public class " + className + " {\n\n}");
-        final PsiFileFactory factory = PsiFileFactory.getInstance(project);
-        PsiJavaFile file = (PsiJavaFile) factory.createFileFromText(className + ".java", JavaFileType.INSTANCE, classSampleContentSb.toString());
+    @NotNull
+    private PsiJavaFile addFileIntoDirManager(String className, String premodify, String extendsClass) {
+        StringBuilder classSampleContent = new StringBuilder();
+        classSampleContent.append("package ").append(curPkg.getQualifiedName() + "." + manageerPDir.getName() + ";");
+        classSampleContent.append("\n\n");
+        classSampleContent.append("public" + (!TextUtils.isEmpty(premodify) ? " " + premodify : "") + " class " + className + (!TextUtils.isEmpty(extendsClass) ? (" extends " + extendsClass) : "") + "{\n\n}");
+        final PsiFileFactory factory = PsiFileFactory.getInstance(Constant.sRootProject);
+        PsiJavaFile file = (PsiJavaFile) factory.createFileFromText(className + ".java", JavaFileType.INSTANCE, classSampleContent.toString());
         manageerPDir.add(file);
+        return file;
     }
+
+
+    private void createDaoManager() {
+        WriteCommandAction.runWriteCommandAction(Constant.sRootProject, new Runnable() {
+            @Override
+            public void run() {
+                PsiJavaFile file = addFileIntoDirManager("DaoManager", null, null);
+                PsiClass[] classes = file.getClasses();
+                PsiClass cls = classes[0];
+                if (cls != null) {
+
+                }
+            }
+        });
+    }
+
+    private void createDaoSession() {
+        WriteCommandAction.runWriteCommandAction(Constant.sRootProject, new Runnable() {
+            @Override
+            public void run() {
+                PsiJavaFile file = addFileIntoDirManager("DaoSession", null, "AbstractDaoSession");
+                PsiClass[] classes = file.getClasses();
+                PsiClass cls = classes[0];
+                if (cls != null) {
+
+                }
+            }
+        });
+
+    }
+
+
+    private void createDaoUtilsStore() {
+        WriteCommandAction.runWriteCommandAction(Constant.sRootProject, new Runnable() {
+            @Override
+            public void run() {
+                PsiJavaFile file = addFileIntoDirManager("DaoUtilsStore", null, null);
+                PsiClass[] classes = file.getClasses();
+                PsiClass cls = classes[0];
+                if (cls != null) {
+
+                }
+            }
+        });
+    }
+
+    private void createMigrationHelper() {
+        WriteCommandAction.runWriteCommandAction(Constant.sRootProject, new Runnable() {
+            @Override
+            public void run() {
+                PsiJavaFile file = addFileIntoDirManager("MigrationHelper", "final", null);
+                PsiClass[] classes = file.getClasses();
+                PsiClass cls = classes[0];
+                if (cls != null) {
+
+                }
+            }
+        });
+    }
+
 
 }
